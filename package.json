@@ -1,0 +1,73 @@
+{
+  "name": "package-update-notify",
+  "displayName": "Package Update Notify",
+  "description": "Show notify on the package was update.",
+  "version": "0.1.0",
+  "publisher": "ren-wei",
+  "keywords": [
+    "vscode",
+    "extension",
+    "package update",
+    "notify"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ren-wei/package-update-notify"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "bugs": {
+    "url": "https://github.com/ren-wei/package-update-notify/issues",
+    "email": "demonre@foxmail.com"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "%package-update-notify.title%",
+      "properties": {
+        "package-update-notify.watch": {
+          "type": "array",
+          "description": "%package-update-notify.watch.description%"
+        },
+        "package-update-notify.interval": {
+          "type": "number",
+          "description": "%package-update-notify.interval.description%",
+          "default": 60
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.96.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "typescript": "^5.7.2",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}
