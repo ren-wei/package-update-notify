@@ -73,7 +73,7 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
                     const lastUpdateTime = context.workspaceState.get(watch.address);
                     if (lastUpdateTime !== updateTime) {
                         if (lastUpdateTime) {
-                            vscode.window.showInformationMessage(msg.hasUpdate[lang].replace("${0}", watch.hostname), `${msg.lastUpdate[lang].replace("${0}", watch.hostname)} ${updateTime}(${formatTime(updateTime)})`);
+                            vscode.window.showInformationMessage(msg.hasUpdate[lang].replace("${0}", watch.hostname) + ` ${msg.lastUpdate[lang]} ${updateTime}(${formatTime(updateTime)})`);
                         }
                         context.workspaceState.update(watch.address, updateTime);
                     }
@@ -85,7 +85,7 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
     }
     if (watchList.length) {
         if (lastTime) {
-            bar.text = `${lastHostname} ${formatTime(lastTime)}${msg.update[lang]}`;
+            bar.text = `${lastHostname} ${formatTime(lastTime)} ${msg.update[lang]}`;
             bar.tooltip = [
                 ...watchList.map(watch => {
                     const updateTime: string | undefined = context.workspaceState.get(watch.address);

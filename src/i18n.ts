@@ -24,8 +24,8 @@ export const msg: Record<string, Record<Lang, string>> = {
 		"zh-cn": "${0} 有更新"
 	},
 	lastUpdate: {
-		"en-US": "${0} last update time: ",
-		"zh-cn": "${0} 最后更新时间："
+		"en-US": "and last update time: ",
+		"zh-cn": "最后更新时间："
 	},
 	update: {
 		"en-US": "update",
