@@ -1,5 +1,6 @@
 {
     "package-update-notify.title": "Package Update Notify",
+    "package-update-notify.language": "Language setting",
     "package-update-notify.watch.description": "A list of listeners' addresses, each of which is an object with three properties: 'address' (The address of the listener), 'hostname' (The name of the display) and 'homepath' (The path of the home path).",
     "package-update-notify.interval.description": "Check the time interval for updates in seconds."
 }

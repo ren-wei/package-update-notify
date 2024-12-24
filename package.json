@@ -33,6 +33,17 @@
     "configuration": {
       "title": "%package-update-notify.title%",
       "properties": {
+        "package-update-notify.language": {
+          "order": 0,
+          "type": "string",
+          "default": "auto",
+          "description": "%package-update-notify.language%",
+          "enum": [
+            "auto",
+            "English",
+            "中文"
+          ]
+        },
         "package-update-notify.watch": {
           "type": "array",
           "description": "%package-update-notify.watch.description%"

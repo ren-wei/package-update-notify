@@ -6,10 +6,6 @@ let timer: NodeJS.Timeout | null = null;
 let lang: Lang = "en-US";
 
 export function activate(context: vscode.ExtensionContext) {
-    lang = vscode.env.language as Lang;
-    if (!msg.checkingInit[lang]) {
-        lang = "en-US";
-    }
     const bar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
     const disposable = vscode.workspace.onDidChangeConfiguration((event) => {
         if (event.affectsConfiguration("package-update-notify")) {
@@ -24,6 +20,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 function init(context: vscode.ExtensionContext, bar: vscode.StatusBarItem) {
     deactivate();
+    const language = vscode.workspace.getConfiguration("package-update-notify").get("language");
+    if (language === "auto") {
+        lang = vscode.env.language.startsWith("zh") ? "zh-cn" : "en-US";
+    } else {
+        lang = language === "English" ? "en-US" : "zh-cn";
+    }
     bar.text = msg.checkingInit[lang];
     const watchList: WatchItem[] | undefined = vscode.workspace.getConfiguration("package-update-notify").get("watch");
     const interval: number | undefined = vscode.workspace.getConfiguration("package-update-notify").get("interval");
