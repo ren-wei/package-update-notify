@@ -2,7 +2,7 @@
   "name": "package-update-notify",
   "displayName": "Package Update Notify",
   "description": "Show notify on the package was update.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "ren-wei",
   "keywords": [
     "vscode",
