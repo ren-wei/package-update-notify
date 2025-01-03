@@ -64,7 +64,7 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
                 const response = await fetch(watch.address + indexUrl);
                 const text = await response.text();
                 // Find a date string
-                const reg = /(\d{4}[\/-]\d{2}[\/-]\d{2} ([上下]午)?\d{1,2}:\d{2}:\d{2}( [AP]M)?)/g;
+                const reg = /(\d{4}[\/-]\d{1,2}[\/-]\d{1,2} ([上下]午)?\d{1,2}:\d{2}:\d{2}( [AP]M)?)/g;
                 const result = reg.exec(text);
                 const updateTime = result?.at(1);
                 if (updateTime) {
