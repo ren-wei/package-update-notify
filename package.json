@@ -22,6 +22,7 @@
     "url": "https://github.com/ren-wei/package-update-notify/issues",
     "email": "demonre@foxmail.com"
   },
+  "icon": "images/logo.png",
   "categories": [
     "Other"
   ],
