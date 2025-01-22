@@ -8,7 +8,7 @@ Search for `package-update-notify` in the `vscode` extension, and then click to 
 
 ## Prerequisites
 
-The build time of the site must be clearly displayed in the `src="**/index.**.js"` file ingested by `index.html`. The extension periodically extracts a time-formatted string from it to compare it, and the plugin displays a notification if the extracted time changes.
+The build time of the website must be clearly displayed in the `src="**/index.**.js"` file of the listening address. The extension periodically extracts a time-formatted string from it to compare it, and the plugin displays a notification if the extracted time changes.
 
 ## Getting Started
 
@@ -23,6 +23,8 @@ export interface WatchItem {
     hostname: string;
 }
 ```
+
+The address of home is `${address}${homepath}`. The address of `index.js` is `${address}${indexUrl}` and `indexUrl` comes from something like `src="/js/index.xxx.js"`.
 
 ## Suggestions
 
