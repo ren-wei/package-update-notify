@@ -5,6 +5,8 @@ let timer: NodeJS.Timeout | null = null;
 
 let lang: Lang = "en-US";
 
+let hasError = new Set();
+
 export function activate(context: vscode.ExtensionContext) {
     const bar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
     const disposable = vscode.workspace.onDidChangeConfiguration((event) => {
@@ -81,8 +83,12 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
                     }
                 }
             }
+            hasError.delete(watch.address + watch.hostname);
         } catch (error) {
-            vscode.window.showErrorMessage(msg.checkingError[lang].replace("${0}", watch.hostname) + ": " + String(error));
+            if (!hasError.has(watch.address + watch.hostname)) {
+                hasError.add(watch.address + watch.hostname);
+                vscode.window.showErrorMessage(msg.checkingError[lang].replace("${0}", watch.hostname) + ": " + String(error));
+            }
         }
     }
     if (watchList.length) {
