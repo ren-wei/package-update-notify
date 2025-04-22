@@ -77,7 +77,7 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
                     const lastUpdateTime = context.workspaceState.get(watch.address);
                     if (lastUpdateTime !== updateTime) {
                         if (lastUpdateTime) {
-                            vscode.window.showInformationMessage(msg.hasUpdate[lang].replace("${0}", watch.hostname) + ` ${msg.lastUpdate[lang]} ${updateTime}(${formatTime(updateTime)})`);
+                            vscode.window.showInformationMessage(msg.hasUpdate[lang].replace("${0}", watch.hostname));
                         }
                         context.workspaceState.update(watch.address, updateTime);
                     }
