@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import { Lang, msg } from './i18n';
+import * as crypto from 'crypto';
 
-let timer: NodeJS.Timeout | null = null;
+let timer: ReturnType<typeof setInterval> | null = null;
 
 let lang: Lang = "en-US";
 
-let hasError = new Set();
+let hasError = new Set<string>();
 
 export function activate(context: vscode.ExtensionContext) {
     const bar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
@@ -43,8 +44,7 @@ function init(context: vscode.ExtensionContext, bar: vscode.StatusBarItem) {
 }
 
 async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBarItem, context: vscode.ExtensionContext) {
-    let lastTime = "";
-    let lastHostname = "";
+    let lastUpdate: { hostname: string; time: Date } | null = null;
     for (const watch of watchList) {
         if (bar.text.startsWith(msg.checkingStart[lang])) {
             bar.text = msg.checking[lang].replace("${0}", watch.hostname);
@@ -57,32 +57,37 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
                 continue;
             }
             const text = await response.text();
-            // find a string like `src="**/index.**.js"`
-            const reg = /src="([^"]*\/index\.([^"]*\.js))"/g;
-            const result = reg.exec(text);
-            const indexUrl = result?.at(1);
-            if (indexUrl) {
-                // Fetch response from indexUrl
-                const response = await fetch(watch.address + indexUrl);
-                const text = await response.text();
-                // Find a date string
-                const reg = /(\d{4}[\/-]\d{1,2}[\/-]\d{1,2} ([上下]午)?\d{1,2}:\d{2}:\d{2}( [AP]M)?)/g;
-                const result = reg.exec(text);
-                const updateTime = result?.at(1);
-                if (updateTime) {
-                    if (!lastTime || new Date(updateTime).getTime() > new Date(lastTime).getTime()) {
-                        lastTime = updateTime;
-                        lastHostname = watch.hostname;
-                    }
-                    const lastUpdateTime = context.workspaceState.get(watch.address);
-                    if (lastUpdateTime !== updateTime) {
-                        if (lastUpdateTime) {
-                            vscode.window.showInformationMessage(msg.hasUpdate[lang].replace("${0}", watch.hostname));
-                        }
-                        context.workspaceState.update(watch.address, updateTime);
-                    }
+            // Calculate hash of the HTML content
+            const hash = crypto.createHash('sha256').update(text).digest('hex');
+            const lastHash = context.workspaceState.get<string>(watch.address);
+            const currentTime = new Date();
+            
+            // Check if this is old version data (time string format like "2024/01/15 10:30:00")
+            // Old version stored time string, new version stores hash (64 hex chars)
+            const isOldVersionData = lastHash && lastHash.length !== 64;
+            
+            if (lastHash !== hash) {
+                if (lastHash && !isOldVersionData) {
+                    vscode.window.showInformationMessage(msg.hasUpdate[lang].replace("${0}", watch.hostname));
                 }
+                context.workspaceState.update(watch.address, hash);
+                context.workspaceState.update(watch.address + ':time', currentTime.toISOString());
             }
+            
+            // If old version data exists, clean it up (optional: migrate time if needed)
+            if (isOldVersionData) {
+                // Old data was a time string, we could try to preserve it
+                // but since we don't have the corresponding hash, it's safer to just start fresh
+                // The time will be set to current time above
+            }
+            
+            // Track the most recent update
+            const storedTime = context.workspaceState.get<string>(watch.address + ':time');
+            const updateTime = storedTime ? new Date(storedTime) : currentTime;
+            if (!lastUpdate || updateTime.getTime() > lastUpdate.time.getTime()) {
+                lastUpdate = { hostname: watch.hostname, time: updateTime };
+            }
+            
             hasError.delete(watch.address + watch.hostname);
         } catch (error) {
             if (!hasError.has(watch.address + watch.hostname)) {
@@ -92,12 +97,12 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
         }
     }
     if (watchList.length) {
-        if (lastTime) {
-            bar.text = `${lastHostname} ${formatTime(lastTime)} ${msg.update[lang]}`;
+        if (lastUpdate) {
+            bar.text = `${lastUpdate.hostname} ${formatTime(lastUpdate.time)} ${msg.update[lang]}`;
             bar.tooltip = [
                 ...watchList.map(watch => {
-                    const updateTime: string | undefined = context.workspaceState.get(watch.address);
-                    return `${watch.hostname}: ${updateTime ? formatTime(updateTime) : msg.unknown[lang]}`;
+                    const updateTime: string | undefined = context.workspaceState.get(watch.address + ':time');
+                    return `${watch.hostname}: ${updateTime ? formatTime(new Date(updateTime)) : msg.unknown[lang]}`;
                 })
             ].join("\n");
         } else {
@@ -108,13 +113,9 @@ async function getAddressUpdateTime(watchList: WatchItem[], bar: vscode.StatusBa
     }
 }
 
-function formatTime(time: string): string {
-    const date = new Date(time);
-    if (isNaN(date.getTime())) {
-        return time;
-    }
+function formatTime(time: Date): string {
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
+    const diff = now.getTime() - time.getTime();
     const diffSeconds = diff / 1000;
     const diffMinutes = diffSeconds / 60;
     const diffHours = diffMinutes / 60;
